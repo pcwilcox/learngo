@@ -4,10 +4,33 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
+	"time"
 )
 
 func main() {
-	for i := 0; i < len(os.Args); i++ {
-		fmt.Printf("Index: %d Arg: %s\n", i, os.Args[i])
+	ch := make(chan string)
+	go primitive(ch)
+	go advanced(ch)
+	for i := 0; i < 2; i++ {
+		fmt.Println(<-ch)
 	}
+}
+
+func primitive(ch chan<- string) {
+	start := time.Now()
+	s, sep := "", ""
+	for _, arg := range os.Args {
+		s += sep + arg
+		sep = " "
+	}
+	stop := time.Since(start).Seconds()
+	ch <- fmt.Sprintf("%s | Primitive done in %3f seconds", s, stop)
+}
+
+func advanced(ch chan<- string) {
+	start := time.Now()
+	s := strings.Join(os.Args, " ")
+	stop := time.Since(start).Seconds()
+	ch <- fmt.Sprintf("%s | Advanced done in %3f seconds", s, stop)
 }
